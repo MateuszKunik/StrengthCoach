@@ -1,60 +1,79 @@
 from mediapipe import solutions
-mp_pose = solutions.pose
 
 
-# Selected values of pose landmarks corresponding to MediaPipe library
-values = [
-    0, # NOSE
-    11, # LEFT_SHOULDER
-    12, # RIGHT_SHOULDER
-    13, # LEFT_ELBOW
-    14, # RIGHT_ELBOW
-    15, # LEFT_WRIST
-    16, # RIGHT_WRIST
-    19, # LEFT_INDEX
-    20, # RIGHT_INDEX
-    23, # LEFT_HIP
-    24, # RIGHT_HIP
-    25, # LEFT_KNEE
-    26, # RIGHT_KNEE
-    27, # LEFT_ANKLE
-    28, # RIGHT_ANKLE
-    31, # LEFT_FOOT_INDEX
-    32, # RIGHT_FOOT_INDEX
-]
+class CustomPoseLandmark():
+    """
+    
+    """
+    def __init__(self):
+        # Initialize MediaPipe solutions
+        self.mp_pose = solutions.pose
+
+        # Selected values of pose landmarks corresponding to PoseLandmark class from MediaPipe library
+        self.values = [0, 11, 12, 13, 14, 15, 16, 19, 20, 23, 24, 25, 26, 27, 28, 31, 32]
 
 
-# Create a dictionary to store landmark names and new values
-landmarks = dict()
-for index, value in enumerate(values):
-    # Extract pose landmark names
-    name = mp_pose.PoseLandmark(value).name
-    # Complete the dictionary with names and values
-    landmarks[value] = {
-        'landmark_name' : name,
-        'new_value' : index
-    }
-
-# Add a completely new pose landmark
-landmarks[max(landmarks) + 1] = {
-    'landmark_name' : 'THORAX',
-    'new_value' : len(landmarks)
-}
+        self.mapping = self.generate_mapping()
 
 
-# Create a custom connections set
-connections = set()
-for connection in mp_pose.POSE_CONNECTIONS:
-    # Extract old values from POSE_CONNECTIONS
-    v1, v2 = connection
-    # Check if the values are expected
-    if v1 in values and v2 in values:
-        # Create connections for new values
-        connections.add(
-            (landmarks[v1]['new_value'], landmarks[v2]['new_value'])
-        )
+    def get_landmarks(self):
+        """
+        
+        """
+        # Create a dictionary to store a custom pose landmark names
+        landmarks = dict()
 
-# Add a new connection
-connections.add(
-    (landmarks[0]['new_value'], landmarks[33]['new_value'])
-        )
+        for value in self.values:
+            # Extract pose landmark name and sign it to the dictionary
+            landmarks[value] = self.mp_pose(value).name
+            
+        # Add a completely new pose landmark
+        landmarks[max(landmarks) + 1] = 'THORAX'
+
+        return landmarks
+    
+
+    def generate_mapping(self):
+        """
+        
+        """
+        # Create a mapping storage
+        mapping = {}
+
+        for index, value in enumerate(self.values):
+            mapping[value] = index
+
+        return mapping
+
+
+    def get_custom_value(self, value):
+        """
+        
+        """
+
+        return self.mapping[value]
+
+
+    def get_connections(self):
+        """
+        
+        """
+        # Create a connections storage
+        connections = set()
+
+        for connection in self.mp_pose.POSE_CONNECTIONS:
+            # Extract default connection values from POSE_CONNECTIONS
+            value_1, value_2 = connection
+            # Check if the values are expected
+            if (value_1 in self.values) and (value_2 in self.values):
+                # Get custom values
+                custom_1 = self.get_custom_value(value_1)
+                custom_2 = self.get_custom_value(value_2)
+
+                # Create a connection for new values
+                connections.add((custom_1, custom_2))
+
+        # Add a custom connection between NOSE and THORAX
+        connections.add((self.get_custom_value(0), self.get_custom_value(33)))
+
+        return connections
