@@ -1,19 +1,13 @@
-from mediapipe import solutions
-
-
 class CustomPoseLandmark():
     """
     
     """
-    def __init__(self):
+    def __init__(self, mp_pose):
         # Initialize MediaPipe solutions
-        self.mp_pose = solutions.pose
+        self.mp_pose = mp_pose
 
         # Selected values of pose landmarks corresponding to PoseLandmark class from MediaPipe library
         self.values = [0, 11, 12, 13, 14, 15, 16, 19, 20, 23, 24, 25, 26, 27, 28, 31, 32]
-
-
-        self.mapping = self.generate_mapping()
 
 
     def get_landmarks(self):
@@ -24,11 +18,15 @@ class CustomPoseLandmark():
         landmarks = dict()
 
         for value in self.values:
-            # Extract pose landmark name and sign it to the dictionary
-            landmarks[value] = self.mp_pose(value).name
+            # Extract pose landmark name from MediaPipe solutions
+            name = self.mp_pose.PoseLandmark(value).name
+            # Get mapped value
+            custom_value = self.get_custom_value(value)
+            # Sign mapped value and pose landmark name to the dictionary
+            landmarks[custom_value] = name
             
         # Add a completely new pose landmark
-        landmarks[max(landmarks) + 1] = 'THORAX'
+        landmarks[len(landmarks)] = 'THORAX'
 
         return landmarks
     
@@ -50,8 +48,12 @@ class CustomPoseLandmark():
         """
         
         """
+        mapping = self.generate_mapping()
 
-        return self.mapping[value]
+        if value in mapping:
+            return mapping[value]
+        else:
+            return len(mapping)
 
 
     def get_connections(self):
@@ -62,7 +64,7 @@ class CustomPoseLandmark():
         connections = set()
 
         for connection in self.mp_pose.POSE_CONNECTIONS:
-            # Extract default connection values from POSE_CONNECTIONS
+            # Extract default connection values from MediaPipe solutions
             value_1, value_2 = connection
             # Check if the values are expected
             if (value_1 in self.values) and (value_2 in self.values):
