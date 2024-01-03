@@ -1,12 +1,7 @@
 import numpy as np
 import pandas as pd
-import cv2
 
-from pathlib import Path
-from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
-
-from custom_pose_landmarks import CustomPoseLandmark
 
 
 def landmark2array(landmark):
@@ -82,10 +77,4 @@ def prepare_dataframe(custom_pose):
     names = custom_pose.get_landmarks().values()
     column_names = [('_'.join([name, axis])).lower() for name in names for axis in axes]
 
-    return pd.DataFrame(
-        columns = ['Id', 'timestamp'] + column_names,
-        dtype = object
-    )
-
-
-
+    return pd.DataFrame(columns = ['Id', 'timestamp'] + column_names)
