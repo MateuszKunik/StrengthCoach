@@ -2,12 +2,10 @@ class CustomPoseLandmark():
     """
     
     """
-    def __init__(self, mp_pose):
-        # Initialize MediaPipe solutions
+    def __init__(self, mp_pose, values):
+        # Initialize MediaPipe solutions and selected values
         self.mp_pose = mp_pose
-
-        # Selected values of pose landmarks corresponding to PoseLandmark class from MediaPipe library
-        self.values = [0, 11, 12, 13, 14, 15, 16, 19, 20, 23, 24, 25, 26, 27, 28, 31, 32]
+        self.values = values
 
 
     def get_landmarks(self):
