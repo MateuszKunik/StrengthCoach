@@ -30,40 +30,58 @@ def array2landmark(array):
     )
 
 
-def calculate_thorax_coordinates(mp_pose, landmarks):
+def calculate_coordinates(mp_pose, landmarks, target):
     """
-    Based on left and right shoulder coordinates function calculates the coordinates of thorax.
+    Based on left and right shoulder/hip coordinates function calculates the coordinates of thorax/pelvis.
     """
 
-    # Extract left and right shoulder landmarks and convert it to array
-    left_shoulder = landmark2array(
-        landmarks.landmark[mp_pose.PoseLandmark.LEFT_SHOULDER])
-    right_shoulder = landmark2array(
-        landmarks.landmark[mp_pose.PoseLandmark.RIGHT_SHOULDER])
+    # Check which custom landmark as a target has been chosen
+    if target.lower() == 'thorax':
+        values = [
+            mp_pose.PoseLandmark.LEFT_SHOULDER,
+            mp_pose.PoseLandmark.RIGHT_SHOULDER,
+        ]
+
+    elif target.lower() == 'pelvis':
+        values = [
+            mp_pose.PoseLandmark.LEFT_HIP,
+            mp_pose.PoseLandmark.RIGHT_HIP
+        ]
+
+    # Extract left and right landmarks and convert it to array
+    left = landmark2array(
+        landmarks.landmark[values[0]]
+    )
+    right = landmark2array(
+        landmarks.landmark[values[1]]
+    )
     
-    # Calculate the thorax coordinates and convert an array to landmark
-    thorax = array2landmark(
-        np.mean([left_shoulder, right_shoulder], axis=0)
+    # Calculate coordinates and convert an array to landmark_pb2 type
+    target = array2landmark(
+        np.mean([left, right], axis=0)
     )
 
-    return thorax
+    return target   
 
 
-def get_custom_landmarks(mp_pose, custom_pose, landmarks):
+
+def get_custom_landmarks(mp_pose, custom_pose, landmarks, custom_landmarks=None):
     """
     
     """
     # Create customize landmarks list
-    custom_landmarks = landmark_pb2.NormalizedLandmarkList()
+    custom_landmark_list = landmark_pb2.NormalizedLandmarkList()
 
     # Extend list by selected landmarks
-    custom_landmarks.landmark.extend(
-        [landmarks.landmark[index] for index in custom_pose.values])
+    custom_landmark_list.landmark.extend(
+        [landmarks.landmark[index] for index in custom_pose.selected_values])
 
-    # Calculate the coordinates of thorax landmark
-    thorax = calculate_thorax_coordinates(mp_pose, landmarks)
+    if custom_landmarks:
+        for landmark_name in custom_landmarks:
+            # Calculate the coordinates of custom landmark
+            custom = calculate_coordinates(mp_pose, landmarks, landmark_name)
 
-    # Add thorax landmark to custom list
-    custom_landmarks.landmark.add().CopyFrom(thorax)
+            # Add thorax landmark to custom list
+            custom_landmark_list.landmark.add().CopyFrom(custom)
 
-    return custom_landmarks
+    return custom_landmark_list

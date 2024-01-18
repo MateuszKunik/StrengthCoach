@@ -66,7 +66,8 @@ def generate_dataframe(
                 custom_pose_landmarks = get_custom_landmarks(
                     mp_pose=mp_pose,
                     custom_pose=custom_pose,
-                    landmarks=results.pose_landmarks)
+                    landmarks=results.pose_landmarks,
+                    custom_landmarks=list(custom_pose.custom_landmarks.keys()))
 
                 # Prepare a single record storage 
                 record = [Id, time]
