@@ -67,14 +67,3 @@ def get_custom_landmarks(mp_pose, custom_pose, landmarks):
     custom_landmarks.landmark.add().CopyFrom(thorax)
 
     return custom_landmarks
-
-
-def prepare_dataframe(custom_pose):
-    """
-    
-    """
-    axes = ['X', 'Y', 'Z']
-    names = custom_pose.get_landmarks().values()
-    column_names = [('_'.join([name, axis])).lower() for name in names for axis in axes]
-
-    return pd.DataFrame(columns = ['Id', 'timestamp'] + column_names)
