@@ -2,33 +2,36 @@ import pandas as pd
 import cv2
 
 from utils import *
+from canonical_form import PoseCanonicalForm
 
 
-def prepare_dataframe(custom_pose):
+def prepare_dataframe(dictionary):
     """
     
     """
     axes = ['X', 'Y', 'Z']
-    names = custom_pose.get_landmarks().values()
+    names = dictionary.values()
     column_names = [('_'.join([name, axis])).lower() for name in names for axis in axes]
 
     return pd.DataFrame(columns = ['Id', 'timestamp'] + column_names)
 
 
-def generate_dataframe(
+def video2frame(
         source,
         mp_pose,
         mp_drawing,
         custom_pose,
         detection_confidence=0.5,
         tracking_confidence=0.5,
+        canonical_form=False,
         video_display=False
 ):
     """
     
     """
     # Prepare empty dataframe based on custom pose landmarks
-    dataframe = prepare_dataframe(custom_pose)
+    dictionary = custom_pose.get_dictionary()
+    dataframe = prepare_dataframe(dictionary)
     # Get Id from source 
     Id = source.name.split('.')[0]
     # Reset time
@@ -69,6 +72,17 @@ def generate_dataframe(
                     landmarks=results.pose_landmarks,
                     custom_landmarks=list(custom_pose.custom_landmarks.keys()))
 
+                if time == 1:
+                    # Initialize PoseCanonicalForm class
+                    canonical = PoseCanonicalForm(
+                        mp_pose=mp_pose,
+                        custom_pose=custom_pose,
+                        landmark_list=custom_pose_landmarks,
+                        default_position=np.array([1, 0, 1]),
+                        default_point=np.zeros(shape=(3,)),
+                        default_length=0.25
+                    )
+
                 # Prepare a single record storage 
                 record = [Id, time]
                 
@@ -76,7 +90,13 @@ def generate_dataframe(
                 for landmark in custom_pose_landmarks.landmark:
                     # Extract pose landmarks coordinates and store as array
                     coordinates = landmark2array(landmark)[:3]
-                    record += coordinates.tolist()
+                    
+                    # Check if canonical form has been chosen
+                    if canonical_form:
+                        # Transform coordinates using canonical form transformations
+                        transformed = canonical.transform(coordinates)
+                    # Save in record storage
+                    record += transformed.tolist()
     
                 # Save collected data in DataFrame format
                 dataframe = pd.concat(
@@ -84,7 +104,6 @@ def generate_dataframe(
                     ignore_index=True
                 )
 
-                dataframe['timestamp'] = pd.to_timedelta(dataframe['timestamp'], unit='s')
                 
                 # Display video if necessary
                 if video_display:
@@ -107,5 +126,39 @@ def generate_dataframe(
 
     cap.release()
     cv2.destroyAllWindows()
+
+    return dataframe
+
+
+def generate_dataframe(
+        path,
+        mp_pose,
+        mp_drawing,
+        custom_pose,
+        detection_confidence=0.5,
+        tracking_confidence=0.5,
+        canonical_form=False,
+        video_display=False
+):
+    """
+    
+    """
+    # Prepare template dataframe using custom pose landmarks
+    dictionary = custom_pose.get_dictionary()
+    dataframe = prepare_dataframe(dictionary)
+
+    for file_path in path.iterdir():
+        tmp = video2frame(
+            file_path,
+            mp_pose,
+            mp_drawing,
+            custom_pose,
+            detection_confidence,
+            tracking_confidence,
+            canonical_form,
+            video_display
+        )
+
+        dataframe = pd.concat([dataframe, tmp], ignore_index=True)
 
     return dataframe
