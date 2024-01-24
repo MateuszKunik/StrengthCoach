@@ -48,12 +48,12 @@ class CustomPoseLandmark():
             print("Error value type")
         
 
-    def get_landmarks(self):
+    def get_dictionary(self):
         """
         
         """
-        # Create a dictionary to store a custom pose landmark names
-        landmarks = dict()
+        # Create a dictionary to store a new values and pose landmark names
+        dictionary = dict()
 
         for value in self.selected_values:
             # Extract pose landmark name from MediaPipe solutions
@@ -61,7 +61,7 @@ class CustomPoseLandmark():
             # Get mapped value
             custom_value = self.get_value(value)
             # Sign mapped value and pose landmark name to the dictionary
-            landmarks[custom_value] = name
+            dictionary[custom_value] = name
 
         # Check if custom landmarks has been entered
         if self.custom_landmarks:
@@ -69,17 +69,17 @@ class CustomPoseLandmark():
                 # Get new value
                 custom_value = self.get_value(name)
                 # Sign new created value and pose landmark name to the dictionary
-                landmarks[custom_value] = name
+                dictionary[custom_value] = name
 
-        return landmarks
+        return dictionary
     
 
-    def get_names(self):
+    def get_reverse_dictionary(self):
         """
         
         """
-        # Create dictionary using get_landmarks method
-        landmarks = self.get_landmarks()
+        # Create dictionary to store pose landmark names and mapped values
+        landmarks = self.get_dictionary()
         names = {name: value for value, name in landmarks.items()
         }
 
@@ -90,8 +90,8 @@ class CustomPoseLandmark():
         """
         
         """
-        # Create dictionary using get_names method     
-        names = self.get_names()
+        # Create dictionary using get_reverse_dictionary method     
+        names = self.get_reverse_dictionary()
 
         # Create a connections storage
         connections = set()
