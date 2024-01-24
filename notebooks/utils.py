@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 from mediapipe.framework.formats import landmark_pb2
 
