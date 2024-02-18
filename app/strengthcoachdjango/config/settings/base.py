@@ -77,6 +77,8 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "django_celery_beat",
+    "bootstrap_datepicker_plus",
+    "django_bootstrap5",
 ]
 
 LOCAL_APPS = [
