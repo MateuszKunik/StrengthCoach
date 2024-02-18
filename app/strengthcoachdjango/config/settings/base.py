@@ -318,6 +318,9 @@ SOCIALACCOUNT_ADAPTER = "strengthcoachdjango.users.adapters.SocialAccountAdapter
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 SOCIALACCOUNT_FORMS = {"signup": "strengthcoachdjango.users.forms.UserSocialSignupForm"}
 
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
 
 # Your stuff...
 # ------------------------------------------------------------------------------
