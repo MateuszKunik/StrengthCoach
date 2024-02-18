@@ -13,6 +13,7 @@ urlpatterns = [
     # User management
     path("users/", include("strengthcoachdjango.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
+    path("accounts/", include("allauth.socialaccount.urls")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

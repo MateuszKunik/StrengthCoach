@@ -76,6 +76,7 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "django_celery_beat",
     "bootstrap_datepicker_plus",
     "django_bootstrap5",
@@ -315,3 +316,10 @@ SOCIALACCOUNT_FORMS = {"signup": "strengthcoachdjango.users.forms.UserSocialSign
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "APP": {"client_id": env("CLIENT_ID_GOOGLE"), "secret": env("SECRET_GOOGLE"), "key": ""},
+    }
+}
