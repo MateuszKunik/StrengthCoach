@@ -64,7 +64,7 @@ def calculate_coordinates(mp_pose, landmarks, target):
 
 
 
-def get_custom_landmarks(mp_pose, custom_pose, landmarks, custom_landmarks=None):
+def get_custom_landmarks(mp_pose, custom_pose, landmarks):
     """
     
     """
@@ -75,12 +75,11 @@ def get_custom_landmarks(mp_pose, custom_pose, landmarks, custom_landmarks=None)
     custom_landmark_list.landmark.extend(
         [landmarks.landmark[index] for index in custom_pose.selected_values])
 
-    if custom_landmarks:
-        for landmark_name in custom_landmarks:
-            # Calculate the coordinates of custom landmark
-            custom = calculate_coordinates(mp_pose, landmarks, landmark_name)
+    for landmark_name in custom_pose.custom_landmarks.keys():
+        # Calculate the coordinates of custom landmark
+        custom = calculate_coordinates(mp_pose, landmarks, landmark_name)
 
-            # Add thorax landmark to custom list
-            custom_landmark_list.landmark.add().CopyFrom(custom)
+        # Add thorax landmark to custom list
+        custom_landmark_list.landmark.add().CopyFrom(custom)
 
     return custom_landmark_list
