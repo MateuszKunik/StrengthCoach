@@ -4,7 +4,19 @@ from bootstrap_datepicker_plus.widgets import DatePickerInput
 from django.contrib.auth import forms as admin_forms
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.forms import CharField, ChoiceField, DateTimeField, DecimalField, EmailField, IntegerField, ModelForm
+from django.forms import (
+    BooleanField,
+    CharField,
+    ChoiceField,
+    DateTimeField,
+    DecimalField,
+    EmailField,
+    IntegerField,
+    ModelForm,
+)
+from django.urls import reverse_lazy
+from django.utils.functional import lazy
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
@@ -39,6 +51,14 @@ class UserProfileUpdateForm(ModelForm):
         required=True,
         validators=[MinValueValidator(0), MaxValueValidator(250)],
     )
+    terms_confirmed = BooleanField(
+        label=lazy(
+            lambda: mark_safe(
+                _("I have read and agree to the <a href='%s'>privacy policy</a>" % reverse_lazy("policy"))
+            )
+        ),
+        required=True,
+    )
 
     class Meta:
         model = User
@@ -52,6 +72,7 @@ class UserProfileUpdateForm(ModelForm):
             "level",
             "powerlifting_section",
             "months_of_experience",
+            "terms_confirmed",
         ]
 
 

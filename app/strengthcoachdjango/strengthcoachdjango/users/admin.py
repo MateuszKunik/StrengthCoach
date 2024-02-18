@@ -34,6 +34,7 @@ class UserAdmin(auth_admin.UserAdmin):
                     "level",
                     "powerlifting_section",
                     "months_of_experience",
+                    "terms_confirmed",
                 )
             },
         ),

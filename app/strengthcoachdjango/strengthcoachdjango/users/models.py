@@ -1,5 +1,13 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField, DateField, EmailField, FloatField, IntegerField, PositiveIntegerField
+from django.db.models import (
+    BooleanField,
+    CharField,
+    DateField,
+    EmailField,
+    FloatField,
+    IntegerField,
+    PositiveIntegerField,
+)
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -38,6 +46,7 @@ class User(AbstractUser):
     level = CharField(_("Proficiency level"), max_length=20, choices=LEVEL_CHOICES, null=True)
     powerlifting_section = CharField(_("Powerlifting section"), max_length=50, null=True)
     months_of_experience = IntegerField(_("Number of months of experience"), null=True)
+    terms_confirmed = BooleanField(null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
