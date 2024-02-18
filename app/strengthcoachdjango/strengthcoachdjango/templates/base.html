@@ -69,6 +69,9 @@
               </li>
               {% if request.user.is_authenticated %}
                 <li class="nav-item">
+                  <a class="nav-link" href="{% url 'workouts:upload_video' %}">{% translate "Upload video" %}</a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" href="{% url 'users:detail' request.user.pk %}">{% translate "My Profile" %}</a>
                 </li>
                 <li class="nav-item">

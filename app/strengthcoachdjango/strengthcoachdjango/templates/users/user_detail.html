@@ -26,5 +26,38 @@
       </div>
       <!-- End Action buttons -->
     {% endif %}
+    <!-- User videos table -->
+    <div class="row mt-4">
+      <div class="col-sm-12">
+        <h3>User Videos</h3>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Video</th>
+                <th>Date Uploaded</th>
+                <th>Process</th>
+                <!-- Add more columns as needed -->
+              </tr>
+            </thead>
+            <tbody>
+              {% for video in object.uservideo_set.all %}
+                <tr>
+                  <td>
+                    <video width="100%" height="240" controls>
+                      <source src="{{ video.video.url }}" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </td>
+                  <td>{{ video.created_at }}</td>
+                  <!-- Add more columns as needed -->
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- End User videos table -->
   </div>
 {% endblock content %}
