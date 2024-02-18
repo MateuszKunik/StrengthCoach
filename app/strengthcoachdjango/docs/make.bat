@@ -8,7 +8,7 @@ REM Command file for Sphinx documentation
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build -c .
 )
-set SOURCEDIR=_source
+set SOURCEDIR=.
 set BUILDDIR=_build
 set APP=..\strengthcoachdjango
 
