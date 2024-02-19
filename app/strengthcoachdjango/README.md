@@ -7,6 +7,42 @@ Django App for StrengthCoach
 
 License: MIT
 
+## RUN ON DOCKER:
+
+Create virtualenv for django app:
+
+`virtualenv .venv --python=python3.11`
+
+Activate virtualenv:
+
+`.venv\Scripts\activate`
+
+Install requirements:
+
+```
+pip install -r requirements\base.txt
+pip install -r requirements\local.txt
+```
+
+Merge env files for production and local:
+
+`python merge_production_dotenvs_in_dotenv.py`
+
+This code create `.env` file in main directory. When you want to start the server locally you need to add in this file and create db:
+
+`createdb --username=postgres <db_name>`
+
+`DATABASE_URL=postgres://postgres:<password>@127.0.0.1:5432/<db_name>`
+
+When you want start app on Docker:
+
+```
+docker compose -f local.yml up
+docker compose -f local.yml up
+```
+
+
+
 ## Settings
 
 Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).

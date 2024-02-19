@@ -34,6 +34,8 @@ services:
       - strengthcoachdjango_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
+    ports:
+      - "8001:5432"
 
   docs:
     image: strengthcoachdjango_local_docs
