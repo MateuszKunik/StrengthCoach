@@ -37,7 +37,7 @@ This code create `.env` file in main directory. When you want to start the serve
 When you want start app on Docker:
 
 ```
-docker compose -f local.yml up
+docker compose -f local.yml build
 docker compose -f local.yml up
 ```
 
