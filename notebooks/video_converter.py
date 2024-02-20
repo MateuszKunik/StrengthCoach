@@ -206,11 +206,10 @@ class Video2DataFrame():
 
             # Create list of all files from main directory
             files = os.listdir(source)
-            path_list = os.listdir(source)
             
             if n_samples:
                 # Create a list of randomly selected paths
-                path_list = random.sample(path_list, n_samples)
+                files = random.sample(files, n_samples)
 
             for file in files:
                 # Create a file path
