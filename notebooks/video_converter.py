@@ -14,15 +14,72 @@ class Video2DataFrame():
     """
     
     """
-    def __init__(
-            self,
-            mp_pose,
-            mp_drawing,
-            custom_pose,
-    ):
+    def __init__(self, mp_pose, mp_drawing, custom_pose, labels=True):
+        # Initialize main objects
         self.mp_pose = mp_pose
         self.mp_drawing = mp_drawing
         self.custom_pose = custom_pose
+        self.labels = labels
+
+        # 
+        self.labels_to_extract = self.get_labels()
+
+
+    def get_labels(self):
+        """
+        
+        """
+        # Create a list of all available labels contained in the file name
+        available_labels = ['FileId', 'Id', 'CameraPosition', 'SetNumber', 'Repetitions', 'RepNumber', 'Load', 'Lifted']
+
+        # Check the type and assign labels names to extract
+        if isinstance(self.labels, list):
+            to_extract = self.labels
+
+        elif isinstance(self.labels, bool):
+            if self.labels:
+                # Take all available labels
+                to_extract = available_labels
+            else:
+                # Take FileId only
+                to_extract = [available_labels[0]]
+        else:
+            print("Wrong data type.")
+
+        return to_extract
+
+
+    def extract_labels(self, source):
+        """
+        
+        """
+        # Get file name without extension
+        file_name = os.path.splitext(os.path.basename(source))[0]
+
+        # Extract labels from file name
+        labels = file_name.split('_')
+
+        Id = labels[0]
+        # Create a camera position value mapping
+        position_mapping = {'L': 'left', 'C': 'center', 'R': 'right'}
+        camera_position = position_mapping[labels[-1]]
+
+        set_number, repetitions, rep_number, load, lifted = list(
+            map(int, labels[1: -1]))       
+        
+        # Create a dictionary to store labels
+        extracted = {
+            'FileId': file_name,
+            'Id': Id,
+            'CameraPosition': camera_position,
+            'SetNumber': set_number,
+            'Repetitions': repetitions,
+            'RepNumber': rep_number,
+            'Load': load,
+            'Lifted': lifted}
+        
+        # Return a new dictionary based on the get_labels method
+        return {key: value for key, value in extracted.items() if key in self.labels_to_extract}
 
 
     def prepare_dataframe(self):
@@ -35,30 +92,37 @@ class Video2DataFrame():
         axes = ['X', 'Y', 'Z']
 
         # Prepare a storage for column names
-        column_names = ['FileId', 'Timestamp']
+        column_names = self.labels_to_extract + ['Timestamp']
         # Generate all combinations of landmark names and axes
-        combinations = ['_'.join(comb) for comb in list(product(landmarks, axes))]
+        combinations = []
+        for landmark, axis in list(product(landmarks, axes)):
+            combinations.append(''.join([landmark.title().replace('_', ''), axis]))
+
         # Extend column names by combinations
         column_names.extend(combinations)
 
         return pd.DataFrame(columns=column_names)
+    
 
-
-    def convert_video(self, file_path, detection, tracking, video_display):
+    def convert_video(self, source, detection, tracking, video_display):
         """
         
         """
-        # Prepare empty dataframe based on CustomPoseLandmark class
+        # Prepare empty dataframe using prepare_dataframe method
         dataframe = self.prepare_dataframe()
-        # Get file ID from file path
-        file_id = os.path.splitext(os.path.basename(file_path))[0]
+        # Extract labels using extract_labels method
+        labels = self.extract_labels(source)
+        # Get file ID
+        file_id = labels['FileId']
+
+
         # Reset time step
         time_step = 0
 
         print(f"Converting {file_id} file to dataframe...")
 
         # Capture the video from source
-        cap = cv2.VideoCapture(file_path.__str__())
+        cap = cv2.VideoCapture(source.__str__())
 
         # Setup MediaPipe instance
         with self.mp_pose.Pose(
@@ -85,14 +149,12 @@ class Video2DataFrame():
                     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
                     # Prepare a single record storage 
-                    record = [file_id, time_step]
+                    record = list(labels.values()) + [time_step]
                     
                     if results.pose_landmarks:
                         # Get custom pose landmarks
                         custom_pose_landmarks = get_custom_landmarks(
-                            mp_pose=self.mp_pose,
-                            custom_pose=self.custom_pose,
-                            landmarks=results.pose_landmarks)
+                            self.mp_pose, self.custom_pose, results.pose_landmarks)
                         
                         # Create record containing file id, time step and pose landmark coordinates
                         for landmark in custom_pose_landmarks.landmark:
@@ -103,11 +165,9 @@ class Video2DataFrame():
                         
                         # Display video if necessary
                         if video_display:
+                            connections = self.custom_pose.get_connections()
                             self.mp_drawing.draw_landmarks(
-                                image,
-                                landmark_list=custom_pose_landmarks,
-                                connections=self.custom_pose.get_connections()
-                            )
+                                image, custom_pose_landmarks, connections)
                             
                             cv2.imshow(f'You are watching {file_id} video.', image)
 
@@ -124,14 +184,13 @@ class Video2DataFrame():
                     # Save collected data in DataFrame format
                     dataframe = pd.concat(
                         [dataframe, pd.DataFrame([record], columns=dataframe.columns)],
-                        ignore_index=True)
-                
+                        ignore_index=True)        
+                    
                 else:
-                    print("Frame read failed.")
                     break
 
         cap.release()
-        cv2.destroyAllWindows()
+        cv2.destroyAllWindows()  
 
         return dataframe
 
@@ -145,14 +204,17 @@ class Video2DataFrame():
             # Prepare empty dataframe based on CustomPoseLandmark class
             dataframe = self.prepare_dataframe()
 
-            # Create list of all paths from main directory
-            path_list = list(source.iterdir())
+            # Create list of all files from main directory
+            files = os.listdir(source)
+            path_list = os.listdir(source)
             
             if n_samples:
                 # Create a list of randomly selected paths
                 path_list = random.sample(path_list, n_samples)
 
-            for file_path in path_list:
+            for file in files:
+                # Create a file path
+                file_path = os.path.join(source, file)
                 # Convert each video and save it to a common DataFrame
                 tmp = self.convert_video(file_path, detection, tracking, video_display)
                 dataframe = pd.concat([dataframe, tmp], ignore_index=True)
