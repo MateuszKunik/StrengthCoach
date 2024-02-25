@@ -1,7 +1,7 @@
 import math as m
 import numpy as np
 
-from utils import *
+from utils import landmark2array
 
 
 class PoseCanonicalForm():
