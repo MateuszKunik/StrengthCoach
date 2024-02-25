@@ -180,6 +180,7 @@ class Video2DataFrame():
                     else:
                         # Protection against missing results
                         record += np.zeros(len(dataframe.columns) - len(record)).tolist()
+                        print(f"Please check {file_id} file in {time_step}th frame.")
 
                     # Save collected data in DataFrame format
                     dataframe = pd.concat(
