@@ -9,7 +9,7 @@ class CustomDataset(Dataset):
     """
     
     """
-    def __init__(self, data, transform=None):
+    def __init__(self, data, max_frequency, transform=None):
         # Initialize 
         self.data = data
         self.transform = transform
@@ -21,7 +21,7 @@ class CustomDataset(Dataset):
         tmp = tmp.rename(columns={'size': 'Frequency'})
         self.data = pd.merge(self.data, tmp)
 
-        self.data['MaxFrequency'] = self.data.groupby(by='FileId').size().max()
+        self.data['MaxFrequency'] = max_frequency
 
         for _, file_data in self.data.groupby(by='FileId'):
             # Drop the FileId column
