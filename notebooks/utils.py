@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 from mediapipe.framework.formats import landmark_pb2
+from sklearn.model_selection import train_test_split
 
 
 def landmark2array(landmark):
@@ -193,3 +194,18 @@ def dataloader_function(data, batch_size):
             group_tensors = torch.cat((group_tensors, tensor), dim=0)
         
         print(group_tensors.shape)
+
+
+def split_data(data):
+    """
+    
+    """
+    # Get unique file IDs
+    file_ids = data['FileId'].unique()
+
+    # Split the files into three lists in an 8:1:1 ratio
+    train, ids_to_split = train_test_split(file_ids, test_size=0.2)
+    valid, test = train_test_split(ids_to_split, test_size=0.5)
+
+    # Put ids into dictionary
+    return {"train": train, "validation": valid, "test": test}
