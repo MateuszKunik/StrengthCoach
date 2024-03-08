@@ -2,21 +2,6 @@ import torch
 from tqdm.auto import tqdm
 
 
-def recursion(model, data):
-    """
-    
-    """
-    # Initialize the hidden state tensor depending on the actual batch size
-    hidden_tensor = model.init_hidden_state(data.size(0))
-
-    # Recursion procedure loop
-    for i in range(data.size(1)):
-        frames = data[:, i, :]
-        hidden_tensor, outputs = model(frames, hidden_tensor)
-
-    return outputs
-
-
 def train_step(model, dataloader, loss_fn, optimizer, device):
     """
 
@@ -33,7 +18,7 @@ def train_step(model, dataloader, loss_fn, optimizer, device):
         data, targets = data.to(device), targets.to(device)
 
         # Forward pass
-        predictions = recursion(model, data)
+        predictions = model(data)
 
         # Calculate and accumulate loss
         loss = loss_fn(targets, predictions)
@@ -72,7 +57,7 @@ def test_step(model, dataloader, loss_fn, device):
             data, targets = data.to(device), targets.to(device)
 
             # Forward pass
-            predictions = recursion(model, data)
+            predictions = model(data)
 
             # Calculate and accumulate loss
             loss = loss_fn(targets, predictions)
