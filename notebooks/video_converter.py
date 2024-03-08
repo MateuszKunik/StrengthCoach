@@ -65,7 +65,10 @@ class Video2DataFrame():
         camera_position = position_mapping[labels[-1]]
 
         set_number, repetitions, rep_number, load, lifted = list(
-            map(int, labels[1: -1]))       
+            map(int, labels[1: -1]))
+        
+        if load % 5 != 0:
+            load += 0.5
         
         # Create a dictionary to store labels
         extracted = {
