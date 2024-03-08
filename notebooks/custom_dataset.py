@@ -34,8 +34,9 @@ class CustomDataset(Dataset):
             # Convert the adjusted dataframe to a numpy array
             array = adjusted.to_numpy()
 
-            # Convert numpy array to pytorch tensor
+            # Convert numpy array to pytorch tensor 
             file_tensor = torch.from_numpy(array).unsqueeze(dim=0)
+            file_tensor = file_tensor.to(torch.float32)
             # Concatenate to other tensors
             self.tensor = torch.cat((self.tensor, file_tensor), dim=0)
     
