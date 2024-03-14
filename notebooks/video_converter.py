@@ -59,7 +59,7 @@ class Video2DataFrame():
         # Extract labels from file name
         labels = file_name.split('_')
 
-        Id = labels[0]
+        Id = int(labels[0])
         # Create a camera position value mapping
         position_mapping = {'L': 'left', 'C': 'center', 'R': 'right'}
         camera_position = position_mapping[labels[-1]]

@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 
 from mediapipe.framework.formats import landmark_pb2
 from sklearn.model_selection import train_test_split
@@ -17,7 +18,7 @@ def array2landmark(array):
     """
     
     """
-    return landmark_pb2.NormalizedLandmark(array[0], array[1], array[2], array[3])
+    return landmark_pb2.NormalizedLandmark(x=array[0], y=array[1], z=array[2], visibility=array[3])
 
 
 def calculate_coordinates(mp_pose, landmarks, target):
@@ -209,3 +210,55 @@ def split_data(data):
 
     # Put ids into dictionary
     return {"train": train, "validation": valid, "test": test}
+
+
+def save_model(model, target_dir, model_name):
+    """
+    
+    """
+    pass
+    # Create target directory
+    # target_dir_path = Path(target_dir)
+    # target_dir_path.mkdir(parents=True,
+    #                     exist_ok=True)
+
+    # os.path.jo
+    # model_save_path = target_dir_path / model_name
+
+    # # Save the model state_dict()
+    # print(f"[INFO] Saving model to: {model_save_path}")
+    # torch.save(obj=model.state_dict(), f=model_save_path)
+
+
+lowess = sm.nonparametric.lowess
+
+def lowess_function(column, frac, it):
+    """
+    
+    """
+    return lowess(
+        exog = column.index,
+        endog = column.values,
+        frac = frac,
+        it = it,
+        return_sorted = False)
+
+
+def smooth_data(data, frac, it):
+    """
+
+    """
+    # Prepare smoothed data storage
+    smoothed_data = pd.DataFrame()
+
+    for _, file_data in data.groupby(by='FileId'):
+        # Select columns ending with X, Y, or Z
+        tmp = file_data.filter(regex='X$|Y$|Z$')
+
+        # Smooth selected features using LOWESS smoother
+        smoothed = tmp.apply(lowess_function, args=(frac, it), axis=0)
+        file_data = file_data.assign(**smoothed)
+
+        smoothed_data = pd.concat([smoothed_data, file_data])
+
+    return smoothed_data
