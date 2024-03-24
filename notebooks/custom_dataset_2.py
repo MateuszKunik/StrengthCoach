@@ -88,4 +88,7 @@ def collate_fn(batch):
     # Add padding to frames and targets
     padded_frames = [add_padding(frames, max_frames) for frames in batch_frames]
     padded_targets = [add_padding(targets, max_frames) for targets in batch_targets]
+    # Stack padded frames and targets
+    padded_frames = torch.stack(padded_frames)
+    padded_targets = torch.stack(padded_targets)
     return padded_frames, padded_targets
