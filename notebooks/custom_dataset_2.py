@@ -17,14 +17,12 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         # Retrieve data corresponding to the given index
         file_id = self.unique_files[idx]
+        # Extract data for the given file ID and remove 'FileId' column
+        selected_data = self.data[self.data["FileId"] == file_id].drop(columns=['FileId'])
         # Extract frames for the given file ID and convert to Tensor
-        frames = torch.Tensor(
-            self.data[self.data["FileId"] == file_id].values[:, 1:].astype(float)
-        )
+        frames = torch.Tensor(selected_data.values[:, :-1].astype(float))
         # Extract target values for the given file ID and convert to Tensor
-        target_value = torch.Tensor(
-            self.data[self.data["FileId"] == file_id]["PercentageMaxLoad"].values
-        )
+        target_value = torch.Tensor(selected_data["PercentageMaxLoad"].values)
         return frames, target_value
 
 
