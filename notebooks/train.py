@@ -8,7 +8,7 @@ from torch.nn import MSELoss
 
 import engine
 from model_builder import VanillaRNN
-from utils import split_data
+from utils import split_data, save_model
 from data_setup import create_dataloaders
 
 
@@ -68,3 +68,6 @@ engine.train(
     n_epochs=NUM_EPOCHS,
     device=DEVICE
 )
+
+# Save the model with help from utils.py
+# save_model()

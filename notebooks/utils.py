@@ -197,19 +197,37 @@ def dataloader_function(data, batch_size):
         print(group_tensors.shape)
 
 
-def split_data(data):
+def split_data(data, proportions):
     """
     
     """
-    # Get unique file IDs
-    file_ids = data['FileId'].unique()
 
-    # Split the files into three lists in an 8:1:1 ratio
-    train, ids_to_split = train_test_split(file_ids, test_size=0.2)
-    valid, test = train_test_split(ids_to_split, test_size=0.5)
+    proportions = np.array(proportions)
 
-    # Put ids into dictionary
-    return {"train": train, "validation": valid, "test": test}
+    if proportions.sum() == 1:
+        # Get unique file IDs
+        file_ids = data['FileId'].unique()
+
+        if len(proportions) < 3 or proportions[2] == 0:
+            train, test = train_test_split(file_ids, test_size=proportions[1])
+
+            # Put ids into dictionary
+            return {"train": train, "test": test}
+        
+        else:
+            # Calculate valid and test joint part and only test part
+            joint_part = proportions[1:].sum()
+            only_test = proportions[2] / joint_part
+
+            # Split the files into three lists
+            train, ids_to_split = train_test_split(file_ids, test_size=joint_part)
+            valid, test = train_test_split(ids_to_split, test_size=only_test)
+
+            # Put ids into dictionary
+            return {"train": train, "validation": valid, "test": test}
+
+    else:
+        print(f'Please check proportions: {proportions}, they should add up to 1.')
 
 
 def save_model(model, target_dir, model_name):

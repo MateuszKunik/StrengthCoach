@@ -1,3 +1,5 @@
+import torch
+from torchvision import transforms
 from torch.utils.data import DataLoader
 from custom_dataset import CustomDataset
 
@@ -17,19 +19,50 @@ class Norm(object):
         return normalized
     
 
+class AddGaussianNoise(object):
+    """ 
+    
+    """
+    def __init__(self, p=0.5, n_cols=57, mean=0., std=1.):
+        self.p = p
+        self.n_cols = n_cols
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, tensor):
+        if self.p >= torch.rand(1):
+            # Split the tensor for augmentation and for save
+            tensor_1, tensor_2 = tensor.split(split_size=self.n_cols, dim=1)
+
+            # Add Gaussian noise to the landmark coordinates data
+            tensor_1 = tensor_1 + torch.randn_like(tensor_1) * self.std + self.mean
+            # Concatenate noised and saved tensors
+            tensor = torch.cat((tensor_1, tensor_2), dim=1)
+        
+        return tensor
+    
+
 def create_dataloaders(data, file_ids, batch_size, num_workers, pin_memory):
     """
     
     """
     # Calculate max frequency needed for a padding
-    max_frequency = data['MaxFrequency'] = data.groupby(by='FileId').size().max()
+    max_frequency = data.groupby(by='FileId').size().max()
     
     # Get a dataframe, dataset, and dataloader for train file ids
     train_data = data.loc[
         data['FileId'].isin(file_ids["train"])]
 
     train_dataset = CustomDataset(
-        train_data, max_frequency, transform=Norm())
+        train_data,
+        max_frequency,
+        transform=transforms.Compose(
+            [
+                Norm(),
+                AddGaussianNoise(p=0.75, mean=0., std=0.05)
+            ]
+        )
+    )
 
     train_dataloader = DataLoader(
         train_dataset,
