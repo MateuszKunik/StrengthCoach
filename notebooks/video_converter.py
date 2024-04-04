@@ -7,7 +7,6 @@ import random
 from itertools import product
 
 from utils import get_custom_landmarks, landmark2array
-# from canonical_form import PoseCanonicalForm
 
 
 class Video2DataFrame():
