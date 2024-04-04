@@ -1,73 +1,58 @@
-import os
-import numpy as np
-import pandas as pd
-
-
 import torch
-from torch.nn import MSELoss
+import pandas as pd
+from torch.optim import Adam
+from torch.optim.lr_scheduler import StepLR
 
+import config
 import engine
-from model_builder import VanillaRNN
-from utils import split_data, save_model
+from loss import RMSELoss
+from model_builder import RNN
+from utils import split_data
 from data_setup import create_dataloaders
 
 
-# Setup hyperparameters
-BATCH_SIZE = 64
-NUM_WORKERS = 0
-PIN_MEMORY = True
+if config.SEED:
+    torch.manual_seed(config.SEED)
+    torch.cuda.manual_seed(config.SEED)
 
-INPUT_SIZE = 78
-HIDDEN_SIZE = 128
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-DTYPE = torch.float64
-
-NUM_EPOCHS = 100
-LEARNING_RATE = 0.001
-
-# Setup directories
-data_dir = '../data/processed/ProcessedSquats.csv'
 
 # Read prepared dataframe
-data = pd.read_csv(data_dir)
+data = pd.read_csv(config.DATA_DIR)
 
 # Get file IDs splitted into train, validation and test 
-file_ids = split_data(data)
+file_ids = split_data(data, config.PROPORTIONS)
 
 # Create DataLoaders based on data_setup.py
 train_dataloader, valid_dataloader, test_dataloader = create_dataloaders(
     data=data,
     file_ids=file_ids,
-    batch_size=BATCH_SIZE,
-    num_workers=NUM_WORKERS,
-    pin_memory=PIN_MEMORY
+    batch_size=config.BATCH_SIZE,
+    num_workers=config.NUM_WORKERS,
+    pin_memory=config.PIN_MEMORY
 )
 
 # Create model based on model_builder.py
-model = VanillaRNN(
-    input_size=INPUT_SIZE,
-    hidden_size=HIDDEN_SIZE,
-    device=DEVICE,
-    dtype=DTYPE
-).to(DEVICE)
+model = RNN(
+    input_size=config.INPUT_SIZE,
+    hidden_size=config.HIDDEN_SIZE,
+    num_layers=config.NUM_LAYERS)
 
-# Set loss and optimizer
-loss_fn = MSELoss()
-optimizer = torch.optim.Adam(
-    params=model.parameters(),
-    lr=LEARNING_RATE
-)
+model.to(config.DEVICE)
+
+# Set loss, optimizer and scheduler
+loss_fn = RMSELoss()
+optimizer = Adam(model.parameters(), lr=config.LEARNING_RATE)
+lr_scheduler = StepLR(optimizer, step_size=config.STEP_SIZE, gamma=config.GAMMA)
 
 # Start training using engine.py
 engine.train(
     model=model,
     train_dataloader=train_dataloader,
     valid_dataloader=valid_dataloader,
-    optimizer=optimizer,
     loss_fn=loss_fn,
-    n_epochs=NUM_EPOCHS,
-    device=DEVICE
+    optimizer=optimizer,
+    lr_scheduler=lr_scheduler,
+    n_epochs=config.NUM_EPOCHS,
+    device=config.DEVICE,
+    target_dir=config.TARGET_DIR
 )
-
-# Save the model with help from utils.py
-# save_model()
