@@ -1,8 +1,11 @@
+import os
 import torch
 from tqdm.auto import tqdm
+from datetime import datetime
+from utils import save_checkpoints, plot_curves
 
 
-def train_step(model, dataloader, loss_fn, optimizer, device):
+def train_step(model, dataloader, loss_fn, optimizer, lr_scheduler=None, device='cuda'):
     """
 
     """
@@ -33,13 +36,17 @@ def train_step(model, dataloader, loss_fn, optimizer, device):
         # Optimizer step
         optimizer.step()
 
+    # Learning rate scheduler step
+    if lr_scheduler is not None:
+        lr_scheduler.step()
+
     # Get average loss per batch
     accumulated_loss = accumulated_loss / len(dataloader)
 
     return accumulated_loss
 
 
-def test_step(model, dataloader, loss_fn, device):
+def test_step(model, dataloader, loss_fn, device='cuda'):
     """
 
     """
@@ -69,10 +76,16 @@ def test_step(model, dataloader, loss_fn, device):
     return accumulated_loss
 
 
-def train(model, train_dataloader, valid_dataloader, optimizer, loss_fn, n_epochs, device):
+def train(
+        model, train_dataloader, valid_dataloader, loss_fn, optimizer,
+        lr_scheduler=None, n_epochs=100, device='cuda', target_dir='../models'
+):
     """
     
     """
+    # Get current time
+    time = datetime.now().strftime('%H%M%d%m%y')
+
     # Prepare a train and validation loss storage
     results = {'train_loss': [], 'valid_loss': []}
 
@@ -83,6 +96,7 @@ def train(model, train_dataloader, valid_dataloader, optimizer, loss_fn, n_epoch
             dataloader=train_dataloader,
             loss_fn=loss_fn,
             optimizer=optimizer,
+            lr_scheduler=lr_scheduler,
             device=device
         )
 
@@ -98,5 +112,25 @@ def train(model, train_dataloader, valid_dataloader, optimizer, loss_fn, n_epoch
 
         results['train_loss'].append(train_loss)
         results['valid_loss'].append(valid_loss)
+
+    # Get model and optimizer state
+    checkpoints = {
+        'epoch': epoch + 1,
+        'model': model.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'scheduler': lr_scheduler
+    }
+
+    # Create a path to the model directory
+    model_dir = os.path.join(target_dir, time)
+
+    # Create a directory if necessary
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+    
+    # Save model and optimizer state
+    save_checkpoints(checkpoints, model_dir)
+    # Plot loss curves
+    plot_curves(results, model_dir)
 
     return results

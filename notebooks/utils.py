@@ -1,6 +1,8 @@
+import os
 import torch
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
 from mediapipe.framework.formats import landmark_pb2
@@ -209,10 +211,10 @@ def split_data(data, proportions):
         file_ids = data['FileId'].unique()
 
         if len(proportions) < 3 or proportions[2] == 0:
-            train, test = train_test_split(file_ids, test_size=proportions[1])
+            train, valid = train_test_split(file_ids, test_size=proportions[1])
 
             # Put ids into dictionary
-            return {"train": train, "test": test}
+            return {"train": train, "validation": valid}
         
         else:
             # Calculate valid and test joint part and only test part
@@ -230,24 +232,6 @@ def split_data(data, proportions):
         print(f'Please check proportions: {proportions}, they should add up to 1.')
 
 
-def save_model(model, target_dir, model_name):
-    """
-    
-    """
-    pass
-    # Create target directory
-    # target_dir_path = Path(target_dir)
-    # target_dir_path.mkdir(parents=True,
-    #                     exist_ok=True)
-
-    # os.path.jo
-    # model_save_path = target_dir_path / model_name
-
-    # # Save the model state_dict()
-    # print(f"[INFO] Saving model to: {model_save_path}")
-    # torch.save(obj=model.state_dict(), f=model_save_path)
-
-
 lowess = sm.nonparametric.lowess
 
 def lowess_function(column, frac, it):
@@ -260,7 +244,6 @@ def lowess_function(column, frac, it):
         frac = frac,
         it = it,
         return_sorted = False)
-
 
 def smooth_data(data, frac, it):
     """
@@ -280,3 +263,47 @@ def smooth_data(data, frac, it):
         smoothed_data = pd.concat([smoothed_data, file_data])
 
     return smoothed_data
+
+
+def save_checkpoints(checkpoints, target_dir, filename="my_checkpoints.pth"):
+    """
+    
+    """
+    print(f"Saving checkpoints in the directory: {target_dir}")
+    torch.save(checkpoints, os.path.join(target_dir, filename))
+
+
+def plot_curves(losses, target_dir=None):
+    """
+
+    """
+    # Extract number of epochs
+    n_epochs = len(losses['train_loss'])
+    
+    # Draw two curves on a single plot
+    plt.plot(
+        range(1, n_epochs + 1),
+        losses['train_loss'],
+        label='Training Loss Curve'
+    )
+
+    plt.plot(
+        range(1, n_epochs + 1),
+        losses['valid_loss'],
+        label='Validation Loss Curve'
+    )
+    
+    # Add title and axis labels
+    plt.title('Loss Curves for Training and Validation Data')
+    plt.xlabel('Epochs')
+    plt.ylabel('RMSE Loss')
+
+    # Add legend
+    plt.legend()
+
+    # If necessary save the plot to a file
+    if target_dir:
+        plt.savefig(os.path.join(target_dir, 'plot.png'))
+    
+    # Display the plot 
+    plt.show()
