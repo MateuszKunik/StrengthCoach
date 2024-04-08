@@ -199,7 +199,7 @@ def dataloader_function(data, batch_size):
         print(group_tensors.shape)
 
 
-def split_data(data, proportions):
+def split_data(data, proportions, seed):
     """
     
     """
@@ -211,7 +211,7 @@ def split_data(data, proportions):
         file_ids = data['FileId'].unique()
 
         if len(proportions) < 3 or proportions[2] == 0:
-            train, valid = train_test_split(file_ids, test_size=proportions[1])
+            train, valid = train_test_split(file_ids, test_size=proportions[1], random_state=seed)
 
             # Put ids into dictionary
             return {"train": train, "validation": valid}

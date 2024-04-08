@@ -1,11 +1,9 @@
-from torchvision import transforms
 from torch.utils.data import DataLoader
 from custom_dataset import CustomDataset
+from custom_transforms import Normalization
 
-from custom_transforms import Normalization, AddGaussianNoise
 
-
-def create_dataloaders(data, file_ids, batch_size, num_workers, pin_memory):
+def create_dataloaders(data, file_ids, train_transform, augmentation, batch_size, num_workers, pin_memory):
     """
     
     """
@@ -17,15 +15,7 @@ def create_dataloaders(data, file_ids, batch_size, num_workers, pin_memory):
         data['FileId'].isin(file_ids["train"])]
 
     train_dataset = CustomDataset(
-        train_data,
-        max_frequency,
-        transform=transforms.Compose(
-            [
-                Normalization(),
-                AddGaussianNoise(p=0.5, mean=0., std=0.05),
-            ]
-        )
-    )
+        train_data, max_frequency, transform=train_transform, augmentation=augmentation)
 
     train_dataloader = DataLoader(
         train_dataset,
