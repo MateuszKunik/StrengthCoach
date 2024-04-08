@@ -22,7 +22,7 @@ class CustomDataset(Dataset):
         # Extract frames for the given file ID and convert to Tensor
         frames = torch.Tensor(selected_data.values[:, :-1].astype(float))
         # Extract target values for the given file ID and convert to Tensor
-        target_value = torch.Tensor(selected_data["PercentageMaxLoad"].values)
+        target_value = torch.Tensor([selected_data["PercentageMaxLoad"].values[0]])
         return frames, target_value
 
 
@@ -79,14 +79,16 @@ def add_padding(data, max_frames):
 
 
 def collate_fn(batch):
-    batch_frames = [item[0] for item in batch]
-    batch_targets = [item[1] for item in batch]
+    # batch_frames = [item[0] for item in batch]
+    # batch_targets = [item[1] for item in batch]
+    batch_frames, batch_targets = zip(*batch)
+
     # Find maximum number of frames in the batch
     max_frames = max(len(frames) for frames in batch_frames)
     # Add padding to frames and targets
     padded_frames = [add_padding(frames, max_frames) for frames in batch_frames]
-    padded_targets = [add_padding(targets, max_frames) for targets in batch_targets]
+    # padded_targets = [add_padding(targets, max_frames) for targets in batch_targets]
     # Stack padded frames and targets
     padded_frames = torch.stack(padded_frames)
-    padded_targets = torch.stack(padded_targets)
+    padded_targets = torch.squeeze(torch.stack(batch_targets))
     return padded_frames, padded_targets
