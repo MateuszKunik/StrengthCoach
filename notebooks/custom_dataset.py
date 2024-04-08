@@ -9,10 +9,16 @@ class CustomDataset(Dataset):
     """
     
     """
-    def __init__(self, data, max_frequency, transform=None):
-        # Initialize 
-        self.data = data
+    def __init__(self, data, max_frequency, transform=None, augmentation=None):
+        # Initialize
         self.transform = transform
+        self.augmentation = augmentation
+        
+        if self.augmentation:
+            self.data, self.n_cols = self.change_order(data)
+        else:
+            self.data = data
+
 
         # Prepare tensor storage
         self.tensor = torch.tensor([])
@@ -40,6 +46,23 @@ class CustomDataset(Dataset):
             # Concatenate to other tensors
             self.tensor = torch.cat((self.tensor, file_tensor), dim=0)
     
+
+    def change_order(self, data):
+        """ 
+        
+        """
+        # Extract columns containing coordinates
+        coordinates = list(data.filter(regex='X$|Y$|Z$').columns)
+        # Get how many columns contain coordinates
+        n_columns = len(coordinates)
+
+        # Change the order of columns
+        data = data[
+            coordinates + [col for col in data if col not in coordinates]
+        ]
+
+        return data, n_columns
+
 
     def floor_ceil(self, x):
         """
@@ -100,9 +123,21 @@ class CustomDataset(Dataset):
         # Extract features and target
         features = sample[:, :-1]
         target = sample[0, -1].unsqueeze(dim=0)
-
+        
+        
         # Transform if necessary
         if self.transform:
-            return self.transform(features), target
+            features = self.transform(features)
+                
+        # Augment if necessary
+        if self.augmentation:
+            # Separate features into augmented and original
+            to_augment, original = features.split(split_size=self.n_cols, dim=1)
+            # Custom data augmentation
+            augmented = self.augmentation(to_augment)
+            
+            features = torch.cat((augmented, original), dim=1)
+
+            return features, target
         else:
             return features, target
