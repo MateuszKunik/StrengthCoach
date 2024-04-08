@@ -78,13 +78,14 @@ def test_step(model, dataloader, loss_fn, device='cuda'):
 
 def train(
         model, train_dataloader, valid_dataloader, loss_fn, optimizer,
-        lr_scheduler=None, n_epochs=100, device='cuda', target_dir='../models'
+        lr_scheduler=None, init_stopper=None, early_stopper=None,
+        n_epochs=100, device='cuda', target_dir='../models'
 ):
     """
     
     """
     # Get current time
-    time = datetime.now().strftime('%H%M%d%m%y')
+    time = datetime.now().strftime('%d%m%y_%H%M')
 
     # Prepare a train and validation loss storage
     results = {'train_loss': [], 'valid_loss': []}
@@ -112,6 +113,11 @@ def train(
 
         results['train_loss'].append(train_loss)
         results['valid_loss'].append(valid_loss)
+
+
+        if init_stopper.stop(valid_loss) or early_stopper.stop(valid_loss):
+            break
+
 
     # Get model and optimizer state
     checkpoints = {
