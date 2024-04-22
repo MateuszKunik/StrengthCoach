@@ -11,6 +11,14 @@ class CustomPoseLandmark():
         self.custom_landmarks = custom_landmarks
 
 
+    def __len__(self):
+        return len(self.get_dictionary())
+    
+    
+    def num_elements(self):
+        return len(self.get_dictionary())
+
+
     def generate_mapping(self):
         """
         
