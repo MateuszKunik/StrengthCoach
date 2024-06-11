@@ -5,7 +5,19 @@ from custom_transforms import Normalization
 
 def create_dataloaders(data, file_ids, train_transform, augmentation, batch_size, num_workers, pin_memory):
     """
-    
+    Creates DataLoader objects for training, validation, and optionally test datasets.
+
+    Args:
+        data (pd.DataFrame): DataFrame containing the dataset.
+        file_ids (dict): Dictionary with keys "train", "validation", and optionally "test" containing lists of File IDs.
+        train_transform (callable): Transformation function to be applied to the training dataset.
+        augmentation (callable): Augmentation function to be applied to the training dataset.
+        batch_size (int): Number of samples per batch to load.
+        num_workers (int): Number of subprocesses to use for data loading.
+        pin_memory (bool): If True, the data loader will copy Tensors into CUDA pinned memory before returning them.
+
+    Returns:
+        tuple: DataLoader objects for training, validation, and optionally test datasets.
     """
     # Calculate max frequency needed for a padding
     max_frequency = data.groupby(by='FileId').size().max()

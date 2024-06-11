@@ -6,7 +6,23 @@ from utils import landmark2array
 
 class PoseCanonicalForm():
     """
-    
+    A class to transform pose landmarks into a canonical form.
+
+    This class handles the rotation, translation, and scaling of pose landmarks 
+    to a standardized form, making comparisons and further processing easier.
+
+    Args:
+        mp_pose (object): MediaPipe pose object.
+        custom_pose (object): Custom pose object with mappings.
+        landmark_list (object): List of pose landmarks.
+        default_position (np.array, optional): Default vector position for alignment. Default is [1, 0, 1].
+        default_point (np.array, optional): Default point for translation. Default is [0, 0, 0].
+        default_length (float, optional): Default length for scaling. Default is 0.25.
+
+    Attributes:
+        left_hip (np.array): Coordinates of the left hip.
+        right_hip (np.array): Coordinates of the right hip.
+        hips_vector (np.array): Vector from right hip to left hip.
     """
     def __init__(
             self,
@@ -47,7 +63,10 @@ class PoseCanonicalForm():
         
     def rotation_procedure(self):
         """
-        
+        Calculates the rotation angle (alpha) required to align the hips vector with the default position vector.
+
+        Returns:
+            float: Rotation angle in radians.
         """
         # Calculate the dot product of default position vector and hips vector
         dot_product = np.dot(self.default_position, self.hips_vector)
@@ -57,7 +76,7 @@ class PoseCanonicalForm():
             np.linalg.norm(self.default_position) * np.linalg.norm(self.hips_vector)
             )
 
-        # Protection against numerical errors - cosine value should be in the range [-1, 1]
+        # Protection against numerical errors
         bounded_cos_alpha = min(1, max(-1, cos_alpha))
 
         # Calculate alpha using arccosine function
@@ -68,7 +87,13 @@ class PoseCanonicalForm():
     
     def rotate(self, coordinates):
         """
-        
+        Rotates the given coordinates by the calculated rotation angle.
+
+        Args:
+            coordinates (np.array): Coordinates to rotate.
+
+        Returns:
+            np.array: Rotated coordinates.
         """
         alpha = self.rotation_procedure()
 
@@ -85,7 +110,10 @@ class PoseCanonicalForm():
 
     def translation_procedure(self):
         """
-        
+        Calculates the translation vector required to move the pelvis to the default point.
+
+        Returns:
+            np.array: Translation vector.
         """
         # Extract the coordinates of pelvis from landmark list
         pelvis = landmark2array(
@@ -101,7 +129,13 @@ class PoseCanonicalForm():
 
     def translate(self, coordinates):
         """
-        
+        Translates the given coordinates by the calculated translation vector.
+
+        Args:
+            coordinates (np.array): Coordinates to translate.
+
+        Returns:
+            np.array: Translated coordinates.
         """
         vector = self.translation_procedure()
 
@@ -110,7 +144,10 @@ class PoseCanonicalForm():
 
     def scaling_procedure(self):
         """
-        
+        Calculates the scale factor to adjust the length of the hips vector to the default length.
+
+        Returns:
+            float: Scale factor.
         """
         # Calculate the length of hips vector
         hip_length = np.linalg.norm(self.hips_vector)
@@ -123,7 +160,13 @@ class PoseCanonicalForm():
 
     def scale(self, coordinates):
         """
-        
+        Scales the given coordinates by the calculated scale factor.
+
+        Args:
+            coordinates (np.array): Coordinates to scale.
+
+        Returns:
+            np.array: Scaled coordinates.
         """
         scale_factor = self.scaling_procedure()
 
@@ -132,7 +175,13 @@ class PoseCanonicalForm():
 
     def transform(self, coordinates):
         """
-        
+        Applies rotation, translation, and scaling to transform the given coordinates to the canonical form.
+
+        Args:
+            coordinates (np.array): Coordinates to transform.
+
+        Returns:
+            np.array: Transformed coordinates.
         """
         
         transformed = self.scale(self.translate(self.rotate(coordinates)))

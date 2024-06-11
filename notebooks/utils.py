@@ -11,23 +11,42 @@ from sklearn.model_selection import train_test_split
 
 def landmark2array(landmark):
     """
-    
+    Convert a landmark protobuf message to a numpy array.
+
+    Args:
+        landmark (landmark_pb2.NormalizedLandmark): Landmark protobuf message.
+
+    Returns:
+        numpy.ndarray: Numpy array containing x, y, z coordinates and visibility.
     """
     return np.array([landmark.x, landmark.y, landmark.z, landmark.visibility])
 
 
 def array2landmark(array):
     """
-    
+    Convert a numpy array to a landmark protobuf message.
+
+    Args:
+        array (numpy.ndarray): Numpy array containing x, y, z coordinates and visibility.
+
+    Returns:
+        landmark_pb2.NormalizedLandmark: Landmark protobuf message.
     """
     return landmark_pb2.NormalizedLandmark(x=array[0], y=array[1], z=array[2], visibility=array[3])
 
 
 def calculate_coordinates(mp_pose, landmarks, target):
     """
-    Based on left and right shoulder/hip coordinates function calculates the coordinates of thorax/pelvis.
-    """
+    Calculate the coordinates of thorax/pelvis based on left and right shoulder/hip coordinates.
 
+    Args:
+        mp_pose: MediaPipe Pose class.
+        landmarks (landmark_pb2.NormalizedLandmarkList): List of landmarks.
+        target (str): Target landmark to calculate coordinates for ('thorax' or 'pelvis').
+
+    Returns:
+        landmark_pb2.NormalizedLandmark: Calculated landmark.
+    """
     # Check which custom landmark as a target has been chosen
     if target.lower() == 'thorax':
         values = [
@@ -60,7 +79,15 @@ def calculate_coordinates(mp_pose, landmarks, target):
 
 def get_custom_landmarks(mp_pose, custom_pose, landmarks):
     """
-    
+    Get a list of custom landmarks.
+
+    Args:
+        mp_pose: MediaPipe Pose class.
+        custom_pose: CustomPoseLandmark class.
+        landmarks (landmark_pb2.NormalizedLandmarkList): List of landmarks.
+
+    Returns:
+        landmark_pb2.NormalizedLandmarkList: List of custom landmarks.
     """
     # Create customize landmarks list
     custom_landmark_list = landmark_pb2.NormalizedLandmarkList()
@@ -81,9 +108,18 @@ def get_custom_landmarks(mp_pose, custom_pose, landmarks):
 
 def sort_and_assign(data, batch_size, n_groups, ascending=True):
     """
-    
-    """
+    Sort and assign groups to data based on frequency.
 
+    Args:
+        data (pd.DataFrame): Input data.
+        batch_size (int): Batch size.
+        n_groups (int): Number of groups.
+        ascending (bool): Whether to sort in ascending order. Default is True.
+
+    Returns:
+        pd.DataFrame: Data with groups assigned.
+        float: Mean frequency difference between groups.
+    """
     data = data.sort_values(by='Frequency', ascending=ascending).reset_index(drop=True)
 
     data['GroupNumber'] = pd.cut(
@@ -105,7 +141,14 @@ def sort_and_assign(data, batch_size, n_groups, ascending=True):
 
 def assign_groups(data, batch_size):
     """
-    
+    Assign groups to data based on batch size.
+
+    Args:
+        data (pd.DataFrame): Input data.
+        batch_size (int): Batch size.
+
+    Returns:
+        pd.DataFrame: Data with groups assigned.
     """
     # Create a list of file IDs
     file_ids = data['FileId'].unique()
@@ -132,14 +175,26 @@ def assign_groups(data, batch_size):
 
 def floor_ceil(x):
     """
-    
+    Calculate the floor and ceiling of a number.
+
+    Args:
+        x (float): Input number.
+
+    Returns:
+        Tuple[int, int]: Floor and ceiling of the input number.
     """
     return int(np.floor(x)), int(np.ceil(x))
 
 
 def add_padding(data):
     """
-    Add padding to the dataframe by max frequency group
+    Add padding to the dataframe by max frequency group.
+
+    Args:
+        data (pd.DataFrame): Input data.
+
+    Returns:
+        pd.DataFrame: Data with padding added.
     """
     # Reset index
     data = data.reset_index(drop=True)
@@ -173,6 +228,13 @@ def add_padding(data):
     
 
 def dataloader_function(data, batch_size):
+    """
+    Prepare dataloaders.
+
+    Args:
+        data (pd.DataFrame): Input data.
+        batch_size (int): Batch size.
+    """
     for _, group_data in data.groupby(by='GroupNumber'):
         # Drop the GroupNumber column
         group_data = group_data.drop(columns='GroupNumber')
@@ -201,9 +263,16 @@ def dataloader_function(data, batch_size):
 
 def split_data(data, proportions, seed):
     """
-    
-    """
+    Split data into train, validation, and test sets.
 
+    Args:
+        data (pd.DataFrame): Input data.
+        proportions (list): List of proportions for train, validation, and test sets.
+        seed (int): Random seed.
+
+    Returns:
+        dict: Dictionary containing train, validation, and test file IDs.
+    """
     proportions = np.array(proportions)
 
     if proportions.sum() == 1:
@@ -236,7 +305,15 @@ lowess = sm.nonparametric.lowess
 
 def lowess_function(column, frac, it):
     """
-    
+    Apply LOWESS smoothing to a column.
+
+    Args:
+        column (pd.Series): Input column.
+        frac (float): Fraction of the data used when estimating each point.
+        it (int): Number of residual-based reweightings.
+
+    Returns:
+        pd.Series: Smoothed column.
     """
     return lowess(
         exog = column.index,
@@ -247,7 +324,15 @@ def lowess_function(column, frac, it):
 
 def smooth_data(data, frac, it):
     """
+    Smooth data using LOWESS smoothing.
 
+    Args:
+        data (pd.DataFrame): Input data.
+        frac (float): Fraction of the data used when estimating each point.
+        it (int): Number of residual-based reweightings.
+
+    Returns:
+        pd.DataFrame: Smoothed data.
     """
     # Prepare smoothed data storage
     smoothed_data = pd.DataFrame()
@@ -267,7 +352,12 @@ def smooth_data(data, frac, it):
 
 def save_checkpoints(checkpoints, target_dir, filename="my_checkpoints.pth"):
     """
-    
+    Save model checkpoints.
+
+    Args:
+        checkpoints (dict): Model checkpoints.
+        target_dir (str): Target directory.
+        filename (str, optional): Filename for the checkpoints. Defaults to "my_checkpoints.pth".
     """
     print(f"Saving checkpoints in the directory: {target_dir}")
     torch.save(checkpoints, os.path.join(target_dir, filename))
@@ -275,7 +365,11 @@ def save_checkpoints(checkpoints, target_dir, filename="my_checkpoints.pth"):
 
 def plot_curves(losses, target_dir=None):
     """
+    Plot loss curves.
 
+    Args:
+        losses (dict): Dictionary containing training and validation losses.
+        target_dir (str, optional): Target directory to save the plot. Defaults to None.
     """
     # Extract number of epochs
     n_epochs = len(losses['train_loss'])

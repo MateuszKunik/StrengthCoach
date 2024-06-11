@@ -7,7 +7,18 @@ from utils import save_checkpoints, plot_curves
 
 def train_step(model, dataloader, loss_fn, optimizer, lr_scheduler=None, device='cuda'):
     """
+    Performs a single training step for the model.
 
+    Args:
+        model (torch.nn.Module): The model to train.
+        dataloader (torch.utils.data.DataLoader): DataLoader for training data.
+        loss_fn (callable): Loss function to use.
+        optimizer (torch.optim.Optimizer): Optimizer for training.
+        lr_scheduler (optional): Learning rate scheduler.
+        device (str, optional): Device to run the training on. Default is 'cuda'.
+
+    Returns:
+        float: Average loss per batch.
     """
     # Put model in train mode
     model.train()
@@ -48,7 +59,16 @@ def train_step(model, dataloader, loss_fn, optimizer, lr_scheduler=None, device=
 
 def test_step(model, dataloader, loss_fn, device='cuda'):
     """
+    Performs a single evaluation step for the model.
 
+    Args:
+        model (torch.nn.Module): The model to evaluate.
+        dataloader (torch.utils.data.DataLoader): DataLoader for validation data.
+        loss_fn (callable): Loss function to use.
+        device (str, optional): Device to run the evaluation on. Default is 'cuda'.
+
+    Returns:
+        float: Average loss per batch.
     """
     # Put model in evaluation mode
     model.eval()
@@ -82,7 +102,23 @@ def train(
         n_epochs=100, device='cuda', target_dir='../models'
 ):
     """
-    
+    Trains and validates the model over a specified number of epochs.
+
+    Args:
+        model (torch.nn.Module): The model to train.
+        train_dataloader (torch.utils.data.DataLoader): DataLoader for training data.
+        valid_dataloader (torch.utils.data.DataLoader): DataLoader for validation data.
+        loss_fn (callable): Loss function to use.
+        optimizer (torch.optim.Optimizer): Optimizer for training.
+        lr_scheduler (optional): Learning rate scheduler.
+        init_stopper (optional): Initial stopper for early stopping.
+        early_stopper (optional): Early stopping mechanism.
+        n_epochs (int, optional): Number of epochs to train for. Default is 100.
+        device (str, optional): Device to run the training on. Default is 'cuda'.
+        target_dir (str, optional): Directory to save the model checkpoints. Default is '../models'.
+
+    Returns:
+        dict: Dictionary containing training and validation loss history.
     """
     # Get current time
     time = datetime.now().strftime('%d%m%y_%H%M')

@@ -4,7 +4,14 @@ import torch.nn as nn
 
 class RNN(nn.Module):
     """
+    Recurrent Neural Network (RNN) model.
 
+    This class implements a basic RNN model using PyTorch's nn.LSTM module.
+
+    Args:
+        input_size (int): Number of expected features in the input.
+        hidden_size (int): Number of features in the hidden state.
+        num_layers (int): Number of recurrent layers. Default is 1.
     """
     def __init__(self, input_size, hidden_size, num_layers):
         super(RNN, self).__init__()
@@ -27,7 +34,13 @@ class RNN(nn.Module):
 
     def forward(self, input_tensor):
         """
-        
+        Forward pass method to compute the output of the RNN model.
+
+        Args:
+            input_tensor (torch.Tensor): Input tensor of shape (batch_size, seq_len, input_size).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, 1).
         """
         # Initialize the hidden state and cell state as zero tensors
         hidden_tensor = torch.zeros(self.num_layers, input_tensor.size(0), self.hidden_size)

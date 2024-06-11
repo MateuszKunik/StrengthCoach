@@ -7,9 +7,25 @@ from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
     """
-    
+    Custom dataset for handling time-series data with optional transformation and augmentation.
+
+    Attributes:
+        transform (callable, optional): Transformation function to be applied to the features.
+        augmentation (callable, optional): Augmentation function to be applied to the features.
+        data (pd.DataFrame): Dataframe containing the dataset.
+        tensor (torch.Tensor): Tensor containing the processed data.
+        n_cols (int): Number of columns containing coordinates.
     """
     def __init__(self, data, max_frequency, transform=None, augmentation=None):
+        """
+        Initializes the dataset with data, maximum frequency, and optional transformation and augmentation functions.
+
+        Args:
+            data (pd.DataFrame): Dataframe containing the dataset.
+            max_frequency (int): Maximum frequency for padding.
+            transform (callable, optional): Transformation function to be applied to the features.
+            augmentation (callable, optional): Augmentation function to be applied to the features.
+        """
         # Initialize
         self.transform = transform
         self.augmentation = augmentation
@@ -48,8 +64,14 @@ class CustomDataset(Dataset):
     
 
     def change_order(self, data):
-        """ 
-        
+        """
+        Changes the order of columns, placing coordinate columns at the front.
+
+        Args:
+            data (pd.DataFrame): Dataframe containing the dataset.
+
+        Returns:
+            tuple: Modified dataframe and the number of coordinate columns.
         """
         # Extract columns containing coordinates
         coordinates = list(data.filter(regex='X$|Y$|Z$').columns)
@@ -66,14 +88,26 @@ class CustomDataset(Dataset):
 
     def floor_ceil(self, x):
         """
-        
+        Computes the floor and ceiling values of a number.
+
+        Args:
+            x (float): Input number.
+
+        Returns:
+            tuple: Floor and ceiling values of the input number.
         """
         return int(np.floor(x)), int(np.ceil(x))
     
     
     def add_padding(self, data):
         """
+        Adds padding to the dataframe to match the maximum frequency.
 
+        Args:
+            data (pd.DataFrame): Dataframe containing the dataset.
+
+        Returns:
+            pd.DataFrame: Dataframe with added padding.
         """
         # Reset index
         data = data.reset_index(drop=True)
@@ -108,14 +142,23 @@ class CustomDataset(Dataset):
 
     def __len__(self):
         """
-        
+        Returns the number of samples in the dataset.
+
+        Returns:
+            int: Number of samples in the dataset.
         """
         return self.tensor.shape[0]
     
 
     def __getitem__(self, index):
         """
-        
+        Retrieves a sample from the dataset at the specified index.
+
+        Args:
+            index (int): Index of the sample to retrieve.
+
+        Returns:
+            tuple: Features and target of the sample.
         """
         # Get sample from data based on index
         sample = self.tensor[index, : :]

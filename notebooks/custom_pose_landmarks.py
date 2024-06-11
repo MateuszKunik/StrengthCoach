@@ -1,8 +1,21 @@
 class CustomPoseLandmark():
     """
-    
+    Custom class for handling pose landmarks with optional custom landmarks.
+
+    Attributes:
+        mp_pose: MediaPipe pose module.
+        selected_values (list): List of selected pose landmark indices.
+        custom_landmarks (dict, optional): Dictionary of custom landmarks.
     """
     def __init__(self, mp_pose, selected_values=list(range(33)), custom_landmarks=None):
+        """
+        Initializes the CustomPoseLandmark with MediaPipe pose, selected values, and custom landmarks.
+
+        Args:
+            mp_pose: MediaPipe pose module.
+            selected_values (list): List of selected pose landmark indices.
+            custom_landmarks (dict, optional): Dictionary of custom landmarks.
+        """
         # Initialize MediaPipe solutions
         self.mp_pose = mp_pose
 
@@ -12,16 +25,31 @@ class CustomPoseLandmark():
 
 
     def __len__(self):
+        """
+        Returns the number of elements in the pose landmark dictionary.
+
+        Returns:
+            int: Number of elements.
+        """
         return len(self.get_dictionary())
     
     
     def num_elements(self):
+        """
+        Returns the number of elements in the pose landmark dictionary.
+
+        Returns:
+            int: Number of elements.
+        """
         return len(self.get_dictionary())
 
 
     def generate_mapping(self):
         """
-        
+        Generates a mapping of selected values to their indices.
+
+        Returns:
+            dict: Mapping of selected values to indices.
         """
         # Create a mapping storage
         mapping = {}
@@ -34,7 +62,13 @@ class CustomPoseLandmark():
 
     def get_value(self, item):
         """
-        
+        Retrieves the mapped value for a given item, which can be an index or a custom landmark name.
+
+        Args:
+            item (int or str): Item to retrieve the mapped value for.
+
+        Returns:
+            int: Mapped value of the item.
         """
         # Create dictionary using generate_mapping method
         mapping = self.generate_mapping()
@@ -58,7 +92,10 @@ class CustomPoseLandmark():
 
     def get_dictionary(self):
         """
-        
+        Creates a dictionary mapping custom values to pose landmark names.
+
+        Returns:
+            dict: Dictionary mapping custom values to pose landmark names.
         """
         # Create a dictionary to store a new values and pose landmark names
         dictionary = dict()
@@ -84,7 +121,10 @@ class CustomPoseLandmark():
 
     def get_reverse_dictionary(self):
         """
-        
+        Creates a dictionary mapping pose landmark names to custom values.
+
+        Returns:
+            dict: Dictionary mapping pose landmark names to custom values.
         """
         # Create dictionary to store pose landmark names and mapped values
         landmarks = self.get_dictionary()
@@ -96,7 +136,10 @@ class CustomPoseLandmark():
 
     def get_connections(self):
         """
-        
+        Retrieves the connections between pose landmarks, including custom landmarks if provided.
+
+        Returns:
+            set: Set of connections between pose landmarks.
         """
         # Create dictionary using get_reverse_dictionary method     
         names = self.get_reverse_dictionary()

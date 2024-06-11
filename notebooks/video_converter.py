@@ -11,7 +11,13 @@ from utils import get_custom_landmarks, landmark2array
 
 class Video2DataFrame():
     """
-    
+    Convert videos to DataFrame.
+
+    Attributes:
+        mp_pose: MediaPipe Pose instance.
+        mp_drawing: MediaPipe DrawingUtils instance.
+        custom_pose: CustomPoseLandmark instance.
+        labels (bool or list): Whether to extract labels or a list of specific labels.
     """
     def __init__(self, mp_pose, mp_drawing, custom_pose, labels=True):
         # Initialize main objects
@@ -26,7 +32,10 @@ class Video2DataFrame():
 
     def get_labels(self):
         """
-        
+        Get labels to extract based on the input.
+
+        Returns:
+            list: List of labels to extract.
         """
         # Create a list of all available labels contained in the file name
         available_labels = ['FileId', 'Id', 'CameraPosition', 'SetNumber', 'Repetitions', 'RepNumber', 'Load', 'Lifted']
@@ -50,7 +59,13 @@ class Video2DataFrame():
 
     def extract_labels(self, source):
         """
-        
+        Extract labels from the file name.
+
+        Args:
+            source (str): File path.
+
+        Returns:
+            dict: Extracted labels.
         """
         # Get file name without extension
         file_name = os.path.splitext(os.path.basename(source))[0]
@@ -86,7 +101,10 @@ class Video2DataFrame():
 
     def prepare_dataframe(self):
         """
-        
+        Prepare an empty DataFrame.
+
+        Returns:
+            pd.DataFrame: Empty DataFrame.
         """
         # Get landmark names from the CustomPoseLandmark class
         landmarks = self.custom_pose.get_dictionary().values()
@@ -108,7 +126,16 @@ class Video2DataFrame():
 
     def convert_video(self, source, detection, tracking, video_display):
         """
-        
+        Convert video to DataFrame.
+
+        Args:
+            source (str): File path of the video.
+            detection (float): Minimum detection confidence.
+            tracking (float): Minimum tracking confidence.
+            video_display (bool): Whether to display the video.
+
+        Returns:
+            pd.DataFrame: DataFrame containing pose landmarks.
         """
         # Prepare empty dataframe using prepare_dataframe method
         dataframe = self.prepare_dataframe()
@@ -200,7 +227,17 @@ class Video2DataFrame():
 
     def get_dataframe(self, source, n_samples=None, detection=0.5, tracking=0.5, video_display=False):
         """
-        
+        Get DataFrame from videos.
+
+        Args:
+            source (str): Path to the directory containing videos or path to a single video file.
+            n_samples (int, optional): Number of random samples to select from the directory. Defaults to None.
+            detection (float, optional): Minimum detection confidence. Defaults to 0.5.
+            tracking (float, optional): Minimum tracking confidence. Defaults to 0.5.
+            video_display (bool, optional): Whether to display the video. Defaults to False.
+
+        Returns:
+            pd.DataFrame: DataFrame containing pose landmarks.
         """
         # Check where a given path leads
         if os.path.isdir(source):
