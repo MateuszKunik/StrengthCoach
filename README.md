@@ -5,6 +5,7 @@ An AI-powered web application that can serve as your strength training coach, gu
 
 -----------
 [One Repetiton Maximum Research Paper](https://github.com/MateuszKunik/StrengthCoach/blob/master/1RM_ResearchPaper.pdf)
+
 The article presents an innovative approach to predicting the One-Repetition Maximum (in short 1-RM) parameter, commonly used in strength sports. The proposed method combines deep neural networks with computer vision techniques. The study focuses on a comprehensive analysis of strength exercise technique based on audiovisual materials. Traditional methods of measuring 1-RM and their limitations are discussed, alongside a newly proposed method that integrates advanced image analysis with athletes' training specifics.
 
 In the study, computer vision algorithms were applied to estimate body pose, followed by the use of advanced neural network architectures to analyze the obtained data. A dedicated dataset containing recordings of study participants was developed. The goal of this method is to increase the accuracy of 1-RM prediction while eliminating the inconveniences of traditional methods. The article discusses potential practical applications and future research directions in applying artificial intelligence to strength sports.
