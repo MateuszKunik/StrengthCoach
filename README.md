@@ -5,8 +5,11 @@ An AI-powered web application that can serve as your strength training coach, gu
 
 
 -----------
-Utilizing deep neural networks in strength sports for predicting One-Repetition Maximum (1-RM) involves developing a sophisticated approach to assess maximal muscle strength. This project aims to enhance traditional methods by integrating advanced machine learning techniques with performance indicators. By analyzing observable and non-observable characteristics during exercise execution, such as speed, movement trajectory, and stability, deep neural networks can provide more accurate predictions of 1-RM. Additionally, leveraging data from various sources, including athlete profiles, training history, and biomechanical measurements, will contribute to a comprehensive model capable of optimizing training intensity and minimizing injury risks. Furthermore, the project explores innovative technologies and proposes a refined estimator structure to improve estimation accuracy. With ongoing research and development, this project endeavors to revolutionize strength training practices and enhance athletic performance in strength sports. (Project in Progress).
+```latex
 
+
+
+''''markdown
 Project Organization
 ------------
 
