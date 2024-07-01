@@ -1,7 +1,7 @@
 StrengthApp
 ==============================
 
-An AI-powered web application that can serve as your strength training coach, guiding you through exercises like squats, bench presses or deadlifts.
+An AI-powered mobile application that can serve as your strength training coach, guiding you through exercises like squats, bench presses, or deadlifts. Initialiy, based on ongoing research, our application aims to provide a straightforward method for predicting 1-RM using the built-in camera of your smartphone. Stay tuned!
 
 -----------
 [One Repetiton Maximum Research Paper](https://github.com/MateuszKunik/StrengthCoach/blob/master/1RM_ResearchPaper.pdf)
